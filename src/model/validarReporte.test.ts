@@ -16,3 +16,6 @@ test('una pérdida requiere fotografía', () => {
 test('rechaza una fecha futura', () => {
   expect(validarReporte({...hallazgo,fecha:'2099-12-01'}).fecha).toBeTruthy();
 });
+test('rechaza una fecha inexistente', () => {
+  expect(validarReporte({...hallazgo,fecha:'2026-02-31'}).fecha).toBeTruthy();
+});
