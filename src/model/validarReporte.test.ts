@@ -10,3 +10,6 @@ test('no permite hallazgo sin zona', () => {
 test('una pérdida requiere el nombre de mascota', () => {
   expect(validarReporte({...hallazgo,tipo:'PERDIDO',nombre:''}).nombre).toBeTruthy();
 });
+test('una pérdida requiere fotografía', () => {
+  expect(validarReporte({...hallazgo,tipo:'PERDIDO',nombre:'Max',foto:''}).foto).toBeTruthy();
+});
