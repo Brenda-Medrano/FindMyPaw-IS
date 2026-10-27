@@ -8,5 +8,6 @@ export function validarReporte(datos: NuevoReporte): ErroresFormulario {
     if (!datos.nombre?.trim()) errores.nombre = MENSAJES.nombre;
     if (!datos.foto?.trim()) errores.foto = MENSAJES.foto;
   }
+  if (datos.fecha && datos.fecha > new Date().toISOString().slice(0,10)) errores.fecha = MENSAJES.fecha;
   return errores;
 }

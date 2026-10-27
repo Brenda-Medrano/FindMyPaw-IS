@@ -13,3 +13,6 @@ test('una pérdida requiere el nombre de mascota', () => {
 test('una pérdida requiere fotografía', () => {
   expect(validarReporte({...hallazgo,tipo:'PERDIDO',nombre:'Max',foto:''}).foto).toBeTruthy();
 });
+test('rechaza una fecha futura', () => {
+  expect(validarReporte({...hallazgo,fecha:'2099-12-01'}).fecha).toBeTruthy();
+});
