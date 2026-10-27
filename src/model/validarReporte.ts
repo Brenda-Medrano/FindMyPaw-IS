@@ -1,7 +1,8 @@
 import type { NuevoReporte, ErroresFormulario } from './types';
+import { MENSAJES } from './mensajes';
 export function validarReporte(datos: NuevoReporte): ErroresFormulario {
   const errores: ErroresFormulario = {};
-  if (!datos.zona.trim()) errores.zona = 'Indica la zona aproximada';
-  if (!datos.descripcion.trim()) errores.descripcion = 'Describe la mascota encontrada';
+  if (!datos.zona.trim()) errores.zona = MENSAJES.zona;
+  if (!datos.descripcion.trim()) errores.descripcion = MENSAJES.descripcion;
   return errores;
 }
