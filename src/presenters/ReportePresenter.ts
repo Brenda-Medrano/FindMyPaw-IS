@@ -6,6 +6,7 @@ export class ReportePresenter {
   registrar(datos:NuevoReporte): {ok:boolean; errores?:Record<string,string>} {
     const errores = validarReporte(datos);
     if (Object.keys(errores).length) return {ok:false,errores};
+    this.repo.guardar({...datos,id:globalThis.crypto?.randomUUID?.() ?? String(Date.now()),estado:'ACTIVO',moderacion:'PENDIENTE'});
     return {ok:true};
   }
 }
