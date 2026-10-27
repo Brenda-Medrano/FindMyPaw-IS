@@ -4,5 +4,6 @@ export function validarReporte(datos: NuevoReporte): ErroresFormulario {
   const errores: ErroresFormulario = {};
   if (!datos.zona.trim()) errores.zona = MENSAJES.zona;
   if (!datos.descripcion.trim()) errores.descripcion = MENSAJES.descripcion;
+  if (datos.tipo==='PERDIDO' && !datos.nombre?.trim()) errores.nombre = MENSAJES.nombre;
   return errores;
 }

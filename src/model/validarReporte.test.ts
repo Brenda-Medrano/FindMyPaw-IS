@@ -7,3 +7,6 @@ test('un hallazgo puede registrarse sin nombre', () => {
 test('no permite hallazgo sin zona', () => {
   expect(validarReporte({...hallazgo, zona:'  '}).zona).toBeTruthy();
 });
+test('una pérdida requiere el nombre de mascota', () => {
+  expect(validarReporte({...hallazgo,tipo:'PERDIDO',nombre:''}).nombre).toBeTruthy();
+});
