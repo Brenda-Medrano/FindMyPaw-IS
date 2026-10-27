@@ -1,0 +1,6 @@
+import { validarReporte } from './validarReporte';
+import type { NuevoReporte } from './types';
+const hallazgo: NuevoReporte = { autorId:'u1', tipo:'ENCONTRADO', especie:'PERRO', zona:'Sarco', descripcion:'Perrito pequeño', fecha:'2026-10-20' };
+test('un hallazgo puede registrarse sin nombre', () => {
+  expect(validarReporte(hallazgo).nombre).toBeUndefined();
+});
