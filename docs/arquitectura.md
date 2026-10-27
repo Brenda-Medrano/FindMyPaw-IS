@@ -10,3 +10,6 @@ flowchart LR
 ```
 
 La vista muestra formularios. El Presenter coordina las acciones. El Modelo valida datos sin conocer React. El repositorio guarda y consulta los datos.
+## Inyección de dependencias
+
+`ReportePresenter` recibe `ReporteRepository` por constructor. Las pruebas inyectan un repositorio falso; la aplicación utiliza `LocalReporteRepository`. La vista no manipula directamente LocalStorage.
