@@ -1,4 +1,7 @@
 import type { SolicitudAdopcion } from './adopcionTypes';
+export function crearSolicitud(s:SolicitudAdopcion):SolicitudAdopcion {
+ return {...s,estado:'PENDIENTE'};
+}
 export function validarSolicitud(s:SolicitudAdopcion):string[]{
  const errores:string[]=[];
  if(!s.nombre.trim()) errores.push('Ingresa tu nombre');
