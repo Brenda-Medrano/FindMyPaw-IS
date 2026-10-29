@@ -14,3 +14,6 @@ test('combina filtros de especie y estado',()=>{
  expect(filtrarReportes(datos,{especie:'GATO',estado:'RESUELTO'}).map(r=>r.id)).toEqual(['2']);
  expect(filtrarReportes(datos,{especie:'PERRO',estado:'RESUELTO'})).toHaveLength(0);
 });
+test('limpiar filtros devuelve el conjunto original',()=>{
+ expect(filtrarReportes(reportes,{texto:'',especie:'',estado:''})).toHaveLength(reportes.length);
+});
