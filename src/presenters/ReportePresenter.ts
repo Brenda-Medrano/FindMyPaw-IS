@@ -5,7 +5,11 @@ import { puedeEditarReporte } from '../model/permisosReporte';
 import { marcarResuelto } from '../model/estadosReporte';
 import type { Reporte } from '../model/types';
 export class ReportePresenter {
-  constructor(private repo:ReporteRepository){}
+  private repo: ReporteRepository;
+
+  constructor(repo: ReporteRepository) {
+    this.repo = repo;
+  }
   resolver(usuarioId:string,id:string):boolean {
     const anterior = this.repo.listar().find(r=>r.id===id);
     if (!anterior || !puedeEditarReporte(usuarioId,anterior)) return false;
