@@ -1,0 +1,9 @@
+import {useState} from 'react';
+import type { Especie,NuevoReporte } from '../model/types';
+import { reportePresenter } from '../presenters/services';
+export default function ReportarPerdida(){
+ const [nombre,setNombre]=useState(''),[zona,setZona]=useState(''),[descripcion,setDescripcion]=useState(''),[fecha,setFecha]=useState(''),[foto,setFoto]=useState('');
+ const [especie,setEspecie]=useState<Especie>('PERRO'),[mensaje,setMensaje]=useState('');
+ const publicar=(e:React.FormEvent)=>{e.preventDefault();const datos:NuevoReporte={autorId:'demo',tipo:'PERDIDO',especie,nombre,zona,descripcion,fecha,foto};const r=reportePresenter.registrar(datos);setMensaje(r.ok?'Reporte creado. Pendiente de aprobación':Object.values(r.errores||{}).join('. '));};
+ return <main><h1>Reportar mascota perdida</h1><form onSubmit={publicar}><label htmlFor="rp-n">Nombre *</label><input id="rp-n" required value={nombre} onChange={e=>setNombre(e.target.value)}/><label htmlFor="rp-e">Especie *</label><select id="rp-e" value={especie} onChange={e=>setEspecie(e.target.value as Especie)}><option value="PERRO">Perro</option><option value="GATO">Gato</option></select><label htmlFor="rp-z">Zona aproximada *</label><input id="rp-z" required value={zona} onChange={e=>setZona(e.target.value)}/><label htmlFor="rp-d">Descripción *</label><textarea id="rp-d" required value={descripcion} onChange={e=>setDescripcion(e.target.value)}/><label htmlFor="rp-f">Fecha de pérdida *</label><input id="rp-f" required type="date" max={new Date().toISOString().slice(0,10)} value={fecha} onChange={e=>setFecha(e.target.value)}/><label htmlFor="rp-i">URL de fotografía *</label><input id="rp-i" required type="url" value={foto} onChange={e=>setFoto(e.target.value)}/><button>Publicar pérdida</button></form>{mensaje&&<p role="status">{mensaje}</p>}</main>;
+}
