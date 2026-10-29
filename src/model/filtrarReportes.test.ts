@@ -6,3 +6,6 @@ test('buscar por nombre ignora mayúsculas',()=>expect(filtrarReportes(reportes,
 test('buscar también encuentra palabras de la descripción',()=>{
  expect(filtrarReportes(reportes,{texto:'perrito'})).toHaveLength(2);
 });
+test('filtra reportes por especie',()=>{
+ expect(filtrarReportes([...reportes,{...base,id:'3',especie:'GATO'}],{especie:'GATO'}).map(r=>r.id)).toEqual(['3']);
+});
