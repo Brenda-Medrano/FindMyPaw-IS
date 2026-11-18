@@ -6,11 +6,10 @@ import { FILTROS_LIMPIOS } from '../model/Filtros';
 import BarraFiltros from './BarraFiltros';
 import type { CriteriosBusqueda } from '../model/Filtros';
 import Reportes from './Reportes';
-import { reporteRepo } from '../presenters/services';
-import { listarPublicos } from '../model/listarReportes';
+import { reportePresenter } from '../presenters/services';
 
 export default function Buscar({ reportes }: { reportes?: Reporte[] }) {
-  const lista = reportes ?? listarPublicos(reporteRepo.listar());
+  const lista = reportes ?? reportePresenter.listarPublicos();
   const [filtros, setFiltros] = useState<CriteriosBusqueda>({...FILTROS_LIMPIOS});
   const resultados = filtrarReportes(lista, filtros);
   return (
