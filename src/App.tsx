@@ -5,6 +5,7 @@ import {
   useParams,
 } from 'react-router-dom';
 
+
 import Layout from './views/Layout';
 import Inicio from './views/Inicio';
 import ReportarHallazgo from './views/ReportarHallazgo';
