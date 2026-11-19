@@ -1,10 +1,14 @@
+
+import { useState } from 'react';
+import type { ReactNode } from 'react';
+
 import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate,
   useParams,
 } from 'react-router-dom';
-
 
 import Layout from './views/Layout';
 import Inicio from './views/Inicio';
@@ -19,9 +23,13 @@ import Acceso from './views/Acceso';
 import MisReportes from './views/MisReportes';
 import DetalleReporte from './views/DetalleReporte';
 
+import type { Sesion } from './model/autenticacion';
+import type { Rol } from './model/permisosAlbergue';
+
 import {
   reportePresenter,
   adopcionPresenter,
+  sesionPresenter,
 } from './presenters/services';
 
 const Detalle = () => {
@@ -38,7 +46,11 @@ const Detalle = () => {
   return <DetalleReporte reporte={reporte} />;
 };
 
-const PedirAdopcion = () => {
+const PedirAdopcion = ({
+  usuarioId,
+}: {
+  usuarioId: string;
+}) => {
   const { id } = useParams();
 
   const perro = id
@@ -49,61 +61,130 @@ const PedirAdopcion = () => {
     return <p>Perro no encontrado.</p>;
   }
 
-  return <SolicitarAdopcion perro={perro} />;
+  return (
+    <SolicitarAdopcion
+      perro={perro}
+      usuarioId={usuarioId}
+    />
+  );
 };
+
+export function AppRoutes() {
+  const [sesion, setSesion] = useState<Sesion | null>(null);
+  const [, actualizarReportes] = useState(0);
+
+  function proteger(
+    rol: Rol,
+    contenido: (sesion: Sesion) => ReactNode
+  ): ReactNode {
+    if (!sesion) {
+      return <Navigate to="/acceso" replace />;
+    }
+
+    if (!sesionPresenter.puedeAcceder(sesion, rol)) {
+      return <p role="alert">No tienes permiso para acceder.</p>;
+    }
+
+    return contenido(sesion);
+  }
+
+  function cerrarSesion() {
+    setSesion(sesionPresenter.cerrarSesion());
+  }
+
+  return (
+    <Routes>
+      <Route
+        element={
+          <Layout
+            sesion={sesion}
+            onCerrarSesion={cerrarSesion}
+          />
+        }
+      >
+        <Route index element={<Inicio />} />
+
+        <Route path="buscar" element={<Buscar />} />
+
+        <Route path="mascota/:id" element={<Detalle />} />
+
+        <Route
+          path="adopciones"
+          element={
+            <Adopciones
+              perros={adopcionPresenter.listarPerros()}
+            />
+          }
+        />
+
+        <Route
+          path="acceso"
+          element={
+            <Acceso
+              sesion={sesion}
+              onSesion={setSesion}
+            />
+          }
+        />
+
+        <Route
+          path="reportar-perdida"
+          element={proteger('CIUDADANO', usuario => (
+            <ReportarPerdida usuarioId={usuario.id} />
+          ))}
+        />
+
+        <Route
+          path="reportar-hallazgo"
+          element={proteger('CIUDADANO', usuario => (
+            <ReportarHallazgo usuarioId={usuario.id} />
+          ))}
+        />
+
+        <Route
+          path="adoptar/:id"
+          element={proteger('CIUDADANO', usuario => (
+            <PedirAdopcion usuarioId={usuario.id} />
+          ))}
+        />
+
+        <Route
+          path="mis-reportes"
+          element={proteger('CIUDADANO', usuario => (
+            <MisReportes
+              reportes={reportePresenter.listarPorAutor(usuario.id)}
+              resolver={id => {
+                reportePresenter.resolver(usuario.id, id);
+                actualizarReportes(valor => valor + 1);
+              }}
+            />
+          ))}
+        />
+
+        <Route
+          path="albergue"
+          element={proteger('ALBERGUE', usuario =>
+            usuario.rol === 'ALBERGUE'
+              ? <PanelAlbergue albergueId={usuario.albergueId} />
+              : null
+          )}
+        />
+
+        <Route
+          path="admin"
+          element={proteger('ADMIN', usuario => (
+            <PanelAdmin rol={usuario.rol} />
+          ))}
+        />
+      </Route>
+    </Routes>
+  );
+}
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route index element={<Inicio />} />
-
-          <Route path="buscar" element={<Buscar />} />
-
-          <Route path="mascota/:id" element={<Detalle />} />
-
-          <Route
-            path="adopciones"
-            element={
-              <Adopciones
-                perros={adopcionPresenter.listarPerros()}
-              />
-            }
-          />
-
-          <Route
-            path="adoptar/:id"
-            element={<PedirAdopcion />}
-          />
-
-          <Route
-            path="mis-reportes"
-            element={
-              <MisReportes
-                reportes={reportePresenter.listarPorAutor('demo')}
-                resolver={(id) =>
-                  reportePresenter.resolver('demo', id)
-                }
-              />
-            }
-          />
-
-          <Route path="albergue" element={<PanelAlbergue />} />
-          <Route path="admin" element={<PanelAdmin />} />
-          <Route path="acceso" element={<Acceso />} />
-
-          <Route
-            path="reportar-perdida"
-            element={<ReportarPerdida />}
-          />
-
-          <Route
-            path="reportar-hallazgo"
-            element={<ReportarHallazgo />}
-          />
-        </Route>
-      </Routes>
+      <AppRoutes />
     </BrowserRouter>
   );
 }
