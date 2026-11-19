@@ -1,10 +1,23 @@
 import type { NuevoReporte, Reporte } from './types';
 
 export function reporteDuplicado(
-  _nuevo: NuevoReporte,
-  _reportes: readonly Reporte[]
+  nuevo: NuevoReporte,
+  reportes: readonly Reporte[]
 ): boolean {
-  return false;
+  const normalizar = (valor?: string): string =>
+    (valor ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+
+  return reportes.some(reporte =>
+    reporte.estado === 'ACTIVO' &&
+    reporte.autorId === nuevo.autorId &&
+    reporte.tipo === nuevo.tipo &&
+    reporte.especie === nuevo.especie &&
+    reporte.fecha === nuevo.fecha &&
+    normalizar(reporte.nombre) === normalizar(nuevo.nombre) &&
+    normalizar(reporte.zona) === normalizar(nuevo.zona) &&
+    normalizar(reporte.descripcion) ===
+      normalizar(nuevo.descripcion)
+  );
 }
 export function correoDuplicado(
   correo: string,
