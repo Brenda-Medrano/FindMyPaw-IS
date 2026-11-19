@@ -13,6 +13,7 @@ import { reportePresenter } from '../presenters/services';
 
 interface FormularioNuevoReporteProps {
   tipo: TipoReporte;
+  usuarioId: string;
 }
 
 const CONFIGURACION_FORMULARIO = {
@@ -48,6 +49,7 @@ const CONFIGURACION_FORMULARIO = {
 
 export default function FormularioNuevoReporte({
   tipo,
+  usuarioId,
 }: FormularioNuevoReporteProps) {
   const esPerdida = tipo === 'PERDIDO';
   const configuracion = CONFIGURACION_FORMULARIO[tipo];
@@ -70,7 +72,7 @@ export default function FormularioNuevoReporte({
     evento.preventDefault();
 
     const datos: NuevoReporte = {
-      autorId: 'demo',
+      autorId: usuarioId,
       tipo,
       nombre,
       especie,
@@ -98,7 +100,7 @@ export default function FormularioNuevoReporte({
       <select
         id={ids.especie}
         value={especie}
-        onChange={(evento) =>
+        onChange={evento =>
           setEspecie(evento.target.value as Especie)
         }
       >
@@ -121,7 +123,7 @@ export default function FormularioNuevoReporte({
           id={ids.nombre}
           required={esPerdida}
           value={nombre}
-          onChange={(evento) =>
+          onChange={evento =>
             setNombre(evento.target.value)
           }
         />
@@ -136,7 +138,7 @@ export default function FormularioNuevoReporte({
           id={ids.zona}
           required
           value={zona}
-          onChange={(evento) =>
+          onChange={evento =>
             setZona(evento.target.value)
           }
         />
@@ -149,7 +151,7 @@ export default function FormularioNuevoReporte({
           id={ids.descripcion}
           required
           value={descripcion}
-          onChange={(evento) =>
+          onChange={evento =>
             setDescripcion(evento.target.value)
           }
         />
@@ -166,7 +168,7 @@ export default function FormularioNuevoReporte({
           required
           max={fechaMaxima}
           value={fecha}
-          onChange={(evento) =>
+          onChange={evento =>
             setFecha(evento.target.value)
           }
         />
@@ -182,7 +184,7 @@ export default function FormularioNuevoReporte({
               type="url"
               required
               value={foto}
-              onChange={(evento) =>
+              onChange={evento =>
                 setFoto(evento.target.value)
               }
             />

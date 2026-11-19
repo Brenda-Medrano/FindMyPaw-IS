@@ -1,19 +1,33 @@
 
 import { useState } from 'react';
+
+import type { Rol } from '../model/permisosAlbergue';
 import { reportePresenter } from '../presenters/services';
 
-export default function PanelAdmin() {
+interface PanelAdminProps {
+  rol: Rol;
+}
+
+export default function PanelAdmin({
+  rol,
+}: PanelAdminProps) {
   const [lista, setLista] = useState(
-    () => reportePresenter.listarTodos()
+    () => rol === 'ADMIN'
+      ? reportePresenter.listarTodos()
+      : []
   );
 
   function cambiar(
     id: string,
     estado: 'APROBADO' | 'RECHAZADO'
   ) {
+    if (rol !== 'ADMIN') {
+      return;
+    }
+
     const actualizado = reportePresenter.moderar(
       id,
-      'ADMIN',
+      rol,
       estado
     );
 
@@ -22,44 +36,58 @@ export default function PanelAdmin() {
     }
   }
 
+  if (rol !== 'ADMIN') {
+    return (
+      <main>
+        <p role="alert">
+          No tienes permiso para acceder.
+        </p>
+      </main>
+    );
+  }
+
   return (
     <main>
       <h1>Moderación de reportes</h1>
 
-      <p>Panel únicamente para demostración.</p>
-
-      <div className="grid">
-        {lista.map(reporte => (
-          <article
-            className="card"
-            key={reporte.id}
-          >
-            <strong>
-              {reporte.nombre || 'Sin identificar'}
-            </strong>
-
-            <p>{reporte.moderacion}</p>
-
-            <button
-              onClick={() =>
-                cambiar(reporte.id, 'APROBADO')
-              }
+      {lista.length === 0 ? (
+        <p>No existen reportes para moderar.</p>
+      ) : (
+        <div className="grid">
+          {lista.map(reporte => (
+            <article
+              className="card"
+              key={reporte.id}
             >
-              Aprobar
-            </button>
+              <strong>
+                {reporte.nombre || 'Sin identificar'}
+              </strong>
 
-            {' '}
+              <p>{reporte.moderacion}</p>
 
-            <button
-              onClick={() =>
-                cambiar(reporte.id, 'RECHAZADO')
-              }
-            >
-              Rechazar
-            </button>
-          </article>
-        ))}
-      </div>
+              <button
+                type="button"
+                onClick={() =>
+                  cambiar(reporte.id, 'APROBADO')
+                }
+              >
+                Aprobar
+              </button>
+
+              {' '}
+
+              <button
+                type="button"
+                onClick={() =>
+                  cambiar(reporte.id, 'RECHAZADO')
+                }
+              >
+                Rechazar
+              </button>
+            </article>
+          ))}
+        </div>
+      )}
     </main>
   );
 }

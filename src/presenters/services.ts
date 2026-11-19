@@ -1,6 +1,7 @@
 
 import { LocalReporteRepository } from '../repositories/LocalReporteRepository';
 import { LocalAdopcionRepository } from '../repositories/LocalAdopcionRepository';
+import { SesionPresenter } from './SesionPresenter';
 
 import { ReportePresenter } from './ReportePresenter';
 import { AdopcionPresenter } from './AdopcionPresenter';
@@ -13,3 +14,5 @@ export const reportePresenter =
 
 export const adopcionPresenter =
   new AdopcionPresenter(adopcionRepo);
+
+  export const sesionPresenter = new SesionPresenter();

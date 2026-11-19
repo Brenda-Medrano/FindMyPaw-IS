@@ -11,26 +11,26 @@ import { adopcionPresenter } from '../presenters/services';
 
 interface SolicitarAdopcionProps {
   perro: PerroEnAdopcion;
+  usuarioId: string;
 }
 
 export default function SolicitarAdopcion({
   perro,
+  usuarioId,
 }: SolicitarAdopcionProps) {
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
   const [vivienda, setVivienda] = useState('');
   const [mensaje, setMensaje] = useState('');
 
-  function enviar(
-    evento: FormEvent<HTMLFormElement>
-  ) {
+  function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
 
     const solicitud: SolicitudAdopcion = {
-      id: String(Date.now()),
+      id: globalThis.crypto?.randomUUID?.() ?? String(Date.now()),
       perroId: perro.id,
       albergueId: perro.albergueId,
-      adoptanteId: 'demo',
+      adoptanteId: usuarioId,
       nombre,
       telefono,
       vivienda,
@@ -38,17 +38,14 @@ export default function SolicitarAdopcion({
       estado: 'PENDIENTE',
     };
 
-    const resultado =
-      adopcionPresenter.registrar(solicitud);
+    const resultado = adopcionPresenter.registrar(solicitud);
 
     setMensaje(resultado.mensaje);
   }
 
   return (
     <main>
-      <h1>
-        Solicitar adopción de {perro.nombre}
-      </h1>
+      <h1>Solicitar adopción de {perro.nombre}</h1>
 
       <aside className="card">
         <h2>Antes de solicitar</h2>
@@ -75,6 +72,7 @@ export default function SolicitarAdopcion({
 
         <input
           id="sol-t"
+          type="tel"
           required
           value={telefono}
           onChange={evento =>
