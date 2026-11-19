@@ -1,93 +1,31 @@
-
 import { useState } from 'react';
-
 import type { Rol } from '../model/permisosAlbergue';
 import { reportePresenter } from '../presenters/services';
-
-interface PanelAdminProps {
-  rol: Rol;
-}
-
-export default function PanelAdmin({
-  rol,
-}: PanelAdminProps) {
-  const [lista, setLista] = useState(
-    () => rol === 'ADMIN'
-      ? reportePresenter.listarTodos()
-      : []
-  );
-
-  function cambiar(
-    id: string,
-    estado: 'APROBADO' | 'RECHAZADO'
-  ) {
-    if (rol !== 'ADMIN') {
-      return;
+export default function PanelAdmin({ rol }: {
+    rol: Rol;
+}) {
+    const [lista, setLista] = useState(() => rol === 'ADMIN' ? reportePresenter.listarTodos() : []);
+    const [error, setError] = useState('');
+    const [guardando, setGuardando] = useState(false);
+    async function cambiar(id: string, estado: 'APROBADO' | 'RECHAZADO') {
+        setError('');
+        setGuardando(true);
+        try {
+            if (!await reportePresenter.moderar(id, rol, estado))
+                throw new Error('No se encontró el reporte.');
+            setLista(reportePresenter.listarTodos());
+        }
+        catch (e) {
+            setError(e instanceof Error ? e.message : 'No se pudo moderar el reporte.');
+        }
+        finally {
+            setGuardando(false);
+        }
     }
-
-    const actualizado = reportePresenter.moderar(
-      id,
-      rol,
-      estado
-    );
-
-    if (actualizado) {
-      setLista(reportePresenter.listarTodos());
-    }
-  }
-
-  if (rol !== 'ADMIN') {
-    return (
-      <main>
-        <p role="alert">
-          No tienes permiso para acceder.
-        </p>
-      </main>
-    );
-  }
-
-  return (
-    <main>
-      <h1>Moderación de reportes</h1>
-
-      {lista.length === 0 ? (
-        <p>No existen reportes para moderar.</p>
-      ) : (
-        <div className="grid">
-          {lista.map(reporte => (
-            <article
-              className="card"
-              key={reporte.id}
-            >
-              <strong>
-                {reporte.nombre || 'Sin identificar'}
-              </strong>
-
-              <p>{reporte.moderacion}</p>
-
-              <button
-                type="button"
-                onClick={() =>
-                  cambiar(reporte.id, 'APROBADO')
-                }
-              >
-                Aprobar
-              </button>
-
-              {' '}
-
-              <button
-                type="button"
-                onClick={() =>
-                  cambiar(reporte.id, 'RECHAZADO')
-                }
-              >
-                Rechazar
-              </button>
-            </article>
-          ))}
-        </div>
-      )}
-    </main>
-  );
+    if (rol !== 'ADMIN')
+        return <p role="alert">No tienes permiso para acceder.</p>;
+    return <main><h1>Moderación de reportes</h1>{error && <p role="alert">{error}</p>}
+    {lista.length === 0 ? <p>No existen reportes para moderar.</p> : <div className="grid">{lista.map(r => <article className="card" key={r.id}><strong>{r.nombre || 'Sin identificar'}</strong><p>{r.moderacion}</p>
+    <button disabled={guardando} onClick={() => cambiar(r.id, 'APROBADO')}>Aprobar</button>{' '}<button disabled={guardando} onClick={() => cambiar(r.id, 'RECHAZADO')}>Rechazar</button></article>)}</div>}
+  </main>;
 }
