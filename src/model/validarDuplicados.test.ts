@@ -3,6 +3,8 @@ import {
 } from './validarDuplicados';
 import type { NuevoReporte, Reporte } from './types';
 import { reporteDuplicado } from './validarDuplicados';
+import type { SolicitudAdopcion } from './adopcionTypes';
+import { solicitudDuplicada } from './validarDuplicados';
 
 describe('Validación de correos duplicados', () => {
   const correosRegistrados = [
@@ -159,5 +161,67 @@ describe('Validación de reportes duplicados', () => {
 
   test('permite registrar cuando no existen reportes', () => {
     expect(reporteDuplicado(nuevo, [])).toBe(false);
+  });
+});
+describe('Validación de solicitudes duplicadas', () => {
+  const solicitud: SolicitudAdopcion = {
+    id: 'solicitud-1',
+    perroId: 'mascota-1',
+    albergueId: 'albergue-1',
+    adoptanteId: 'usuario-1',
+    nombre: 'Usuario de prueba',
+    telefono: '70000000',
+    vivienda: 'Casa',
+    motivo: 'Deseo adoptar',
+    estado: 'PENDIENTE',
+  };
+
+  test('impide solicitar dos veces la misma mascota', () => {
+    expect(
+      solicitudDuplicada(
+        { ...solicitud, id: 'solicitud-2' },
+        [solicitud]
+      )
+    ).toBe(true);
+  });
+
+  test('impide repetir una solicitud aprobada', () => {
+    expect(
+      solicitudDuplicada(solicitud, [
+        { ...solicitud, estado: 'APROBADA' },
+      ])
+    ).toBe(true);
+  });
+
+  test('permite volver a solicitar después de un rechazo', () => {
+    expect(
+      solicitudDuplicada(solicitud, [
+        { ...solicitud, estado: 'RECHAZADA' },
+      ])
+    ).toBe(false);
+  });
+
+  test('permite solicitudes de mascotas diferentes', () => {
+    expect(
+      solicitudDuplicada(
+        { ...solicitud, perroId: 'mascota-2' },
+        [solicitud]
+      )
+    ).toBe(false);
+  });
+
+  test('permite que otro usuario solicite la mascota', () => {
+    expect(
+      solicitudDuplicada(
+        { ...solicitud, adoptanteId: 'usuario-2' },
+        [solicitud]
+      )
+    ).toBe(false);
+  });
+
+  test('permite registrar la primera solicitud', () => {
+    expect(
+      solicitudDuplicada(solicitud, [])
+    ).toBe(false);
   });
 });

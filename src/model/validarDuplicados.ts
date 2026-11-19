@@ -1,5 +1,12 @@
 import type { NuevoReporte, Reporte } from './types';
+import type { SolicitudAdopcion } from './adopcionTypes';
 
+export function solicitudDuplicada(
+  _nueva: SolicitudAdopcion,
+  _solicitudes: readonly SolicitudAdopcion[]
+): boolean {
+  return false;
+}
 export function reporteDuplicado(
   nuevo: NuevoReporte,
   reportes: readonly Reporte[]
