@@ -86,7 +86,7 @@ afterEach(() => {
 
 describe('Formulario de pérdida', () => {
   test('requiere el nombre de la mascota', () => {
-    render(<ReportarPerdida />);
+    render(<ReportarPerdida usuarioId="demo" />);
 
     const nombre =
       screen.getByLabelText<HTMLInputElement>(/nombre/i);
@@ -95,7 +95,7 @@ describe('Formulario de pérdida', () => {
   });
 
   test('requiere una fotografía', () => {
-    render(<ReportarPerdida />);
+    render(<ReportarPerdida usuarioId="demo" />);
 
     const foto =
       screen.getByLabelText<HTMLInputElement>(/fotografía/i);
@@ -105,7 +105,7 @@ describe('Formulario de pérdida', () => {
   });
 
   test('contiene todos los campos compartidos', () => {
-    render(<ReportarPerdida />);
+    render(<ReportarPerdida usuarioId="demo" />);
 
     expect(screen.getByLabelText(/especie/i))
       .toBeTruthy();
@@ -127,7 +127,7 @@ describe('Formulario de pérdida', () => {
 
     const user = userEvent.setup();
 
-    render(<ReportarPerdida />);
+    render(<ReportarPerdida usuarioId="demo" />);
 
     completarCamposPerdida();
 
@@ -162,7 +162,7 @@ describe('Formulario de pérdida', () => {
 
     const user = userEvent.setup();
 
-    render(<ReportarPerdida />);
+    render(<ReportarPerdida usuarioId="demo" />);
 
     completarCamposPerdida();
 
@@ -179,7 +179,7 @@ describe('Formulario de pérdida', () => {
 
 describe('Formulario de hallazgo', () => {
   test('permite que el nombre sea opcional', () => {
-    render(<ReportarHallazgo />);
+    render(<ReportarHallazgo usuarioId="demo" />);
 
     const nombre =
       screen.getByLabelText<HTMLInputElement>(/nombre/i);
@@ -188,14 +188,14 @@ describe('Formulario de hallazgo', () => {
   });
 
   test('no solicita una fotografía', () => {
-    render(<ReportarHallazgo />);
+    render(<ReportarHallazgo usuarioId="demo" />);
 
     expect(screen.queryByLabelText(/fotografía/i))
       .toBeNull();
   });
 
   test('contiene todos los campos compartidos', () => {
-    render(<ReportarHallazgo />);
+    render(<ReportarHallazgo usuarioId="demo" />);
 
     expect(screen.getByLabelText(/especie/i))
       .toBeTruthy();
@@ -217,7 +217,7 @@ describe('Formulario de hallazgo', () => {
 
     const user = userEvent.setup();
 
-    render(<ReportarHallazgo />);
+    render(<ReportarHallazgo usuarioId="demo" />);
 
     completarCamposComunes();
 
@@ -252,7 +252,7 @@ describe('Formulario de hallazgo', () => {
 
     const user = userEvent.setup();
 
-    render(<ReportarHallazgo />);
+    render(<ReportarHallazgo usuarioId="demo" />);
 
     completarCamposComunes();
 
@@ -266,3 +266,4 @@ describe('Formulario de hallazgo', () => {
       .toBe('Descripción no válida');
   });
 });
+
