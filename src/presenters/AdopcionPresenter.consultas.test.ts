@@ -1,11 +1,16 @@
 
-import { describe, expect, jest, test } from '@jest/globals';
+import { describe, expect, test } from '@jest/globals';
 
 import { AdopcionPresenter } from './AdopcionPresenter';
+
 import type {
   PerroEnAdopcion,
   SolicitudAdopcion,
 } from '../model/adopcionTypes';
+
+import type {
+  AdopcionRepository,
+} from '../repositories/interfaces';
 
 function prepararPresenter() {
   const perro: PerroEnAdopcion = {
@@ -19,6 +24,15 @@ function prepararPresenter() {
     requisitos: 'Entrevista previa',
   };
 
+  const perros: PerroEnAdopcion[] = [
+    perro,
+    {
+      ...perro,
+      id: 'p2',
+      nombre: 'Mila',
+    },
+  ];
+
   const solicitud: SolicitudAdopcion = {
     id: 's1',
     perroId: perro.id,
@@ -31,30 +45,54 @@ function prepararPresenter() {
     estado: 'PENDIENTE',
   };
 
-  const repo = {
-    perros: jest.fn(() => [perro]),
-    solicitudes: jest.fn(() => [solicitud]),
-    guardarSolicitud: jest.fn(),
-    actualizarSolicitud: jest.fn(),
+  const solicitudes: SolicitudAdopcion[] = [
+    solicitud,
+  ];
+
+  const repo: AdopcionRepository = {
+    perros: () => perros,
+
+    solicitudes: () => solicitudes,
+
+    guardarSolicitud: nueva => {
+      solicitudes.push(nueva);
+    },
+
+    actualizarSolicitud: actualizada => {
+      const indice = solicitudes.findIndex(
+        item => item.id === actualizada.id
+      );
+
+      if (indice !== -1) {
+        solicitudes[indice] = actualizada;
+      }
+    },
   };
 
   const presenter = new AdopcionPresenter(repo);
 
-  return { presenter, perro, solicitud };
+  return {
+    presenter,
+    perros,
+    solicitudes,
+  };
 }
 
-describe('Consultas de adopciones', () => {
-  test('lista los perros en adopción', () => {
-    const { presenter, perro } = prepararPresenter();
+describe('Consultas de AdopcionPresenter', () => {
+  test('lista los perros del repositorio', () => {
+    const { presenter, perros } =
+      prepararPresenter();
 
-    expect(presenter.listarPerros()).toEqual([perro]);
+    expect(presenter.listarPerros())
+      .toEqual(perros);
   });
 
-  test('encuentra un perro por su identificador', () => {
-    const { presenter, perro } = prepararPresenter();
+  test('busca un perro por su identificador', () => {
+    const { presenter, perros } =
+      prepararPresenter();
 
-    expect(presenter.buscarPerroPorId('p1'))
-      .toEqual(perro);
+    expect(presenter.buscarPerroPorId('p2'))
+      .toEqual(perros[1]);
   });
 
   test('devuelve undefined si el perro no existe', () => {
@@ -64,11 +102,21 @@ describe('Consultas de adopciones', () => {
       .toBeUndefined();
   });
 
-  test('lista las solicitudes de adopción', () => {
-    const { presenter, solicitud } =
+  test('lista las solicitudes del repositorio', () => {
+    const { presenter, solicitudes } =
       prepararPresenter();
 
     expect(presenter.listarSolicitudes())
-      .toEqual([solicitud]);
+      .toEqual(solicitudes);
+  });
+
+  test('devuelve una lista vacía si no hay solicitudes', () => {
+    const { presenter, solicitudes } =
+      prepararPresenter();
+
+    solicitudes.length = 0;
+
+    expect(presenter.listarSolicitudes())
+      .toEqual([]);
   });
 });
