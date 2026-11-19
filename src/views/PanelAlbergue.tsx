@@ -1,28 +1,36 @@
 
 import { useState } from 'react';
+
+import type { SolicitudAdopcion } from '../model/adopcionTypes';
 import { adopcionPresenter } from '../presenters/services';
 
-const ALBERGUE_ID = 'demo';
+interface PanelAlbergueProps {
+  albergueId: string;
+}
 
-export default function PanelAlbergue() {
-  const [solicitudes, setSolicitudes] = useState(() =>
-    adopcionPresenter.listarSolicitudesPorAlbergue(ALBERGUE_ID)
+export default function PanelAlbergue({
+  albergueId,
+}: PanelAlbergueProps) {
+  const [solicitudes, setSolicitudes] = useState<SolicitudAdopcion[]>(
+    () => adopcionPresenter.listarSolicitudesPorAlbergue(albergueId)
   );
 
-  const cambiar = (
+  function cambiar(
     id: string,
     estado: 'APROBADA' | 'RECHAZADA'
-  ) => {
-    adopcionPresenter.cambiarEstado(
+  ) {
+    const actualizado = adopcionPresenter.cambiarEstado(
       id,
-      ALBERGUE_ID,
+      albergueId,
       estado
     );
 
-    setSolicitudes(
-      adopcionPresenter.listarSolicitudesPorAlbergue(ALBERGUE_ID)
-    );
-  };
+    if (actualizado) {
+      setSolicitudes(
+        adopcionPresenter.listarSolicitudesPorAlbergue(albergueId)
+      );
+    }
+  }
 
   return (
     <main>
@@ -33,15 +41,23 @@ export default function PanelAlbergue() {
       ) : (
         <div className="grid">
           {solicitudes.map(solicitud => (
-            <article className="card" key={solicitud.id}>
+            <article
+              className="card"
+              key={solicitud.id}
+            >
               <h3>{solicitud.nombre}</h3>
 
               <p>{solicitud.estado}</p>
 
-              <p>Vivienda: {solicitud.vivienda}</p>
+              <p>
+                Vivienda: {solicitud.vivienda}
+              </p>
 
               <button
-                onClick={() => cambiar(solicitud.id, 'APROBADA')}
+                type="button"
+                onClick={() =>
+                  cambiar(solicitud.id, 'APROBADA')
+                }
               >
                 Aprobar
               </button>
@@ -49,7 +65,10 @@ export default function PanelAlbergue() {
               {' '}
 
               <button
-                onClick={() => cambiar(solicitud.id, 'RECHAZADA')}
+                type="button"
+                onClick={() =>
+                  cambiar(solicitud.id, 'RECHAZADA')
+                }
               >
                 Rechazar
               </button>

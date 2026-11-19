@@ -1,5 +1,17 @@
+
 import FormularioNuevoReporte from './FormularioNuevoReporte';
 
-export default function ReportarHallazgo() {
-  return <FormularioNuevoReporte tipo="ENCONTRADO" />;
+interface ReportarHallazgoProps {
+  usuarioId: string;
+}
+
+export default function ReportarHallazgo({
+  usuarioId,
+}: ReportarHallazgoProps) {
+  return (
+    <FormularioNuevoReporte
+      tipo="ENCONTRADO"
+      usuarioId={usuarioId}
+    />
+  );
 }
