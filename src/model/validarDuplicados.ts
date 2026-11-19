@@ -1,6 +1,11 @@
 export function correoDuplicado(
-  _correo: string,
-  _registrados: readonly string[]
+  correo: string,
+  registrados: readonly string[]
 ): boolean {
-  return false;
+  const correoNormalizado = correo.trim().toLowerCase();
+
+  return registrados.some(
+    registrado =>
+      registrado.trim().toLowerCase() === correoNormalizado
+  );
 }
