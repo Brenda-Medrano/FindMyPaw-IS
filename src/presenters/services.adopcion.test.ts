@@ -1,130 +1,15 @@
-
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  test,
-} from '@jest/globals';
-
-import { adopcionPresenter } from './services';
-import type {
-  SolicitudAdopcion,
-} from '../model/adopcionTypes';
-
-function crearSolicitudValida(): SolicitudAdopcion {
-  const perro = adopcionPresenter.buscarPerroPorId('p1');
-
-  if (!perro) {
-    throw new Error('No se encontró el perro de prueba');
-  }
-
-  return {
-    id: 'solicitud-prueba',
-    perroId: perro.id,
-    albergueId: perro.albergueId,
-    adoptanteId: 'usuario-prueba',
-    nombre: 'Ana',
-    telefono: '70000000',
-    vivienda: 'Casa',
-    motivo: 'Deseo adoptar',
-    estado: 'PENDIENTE',
-  };
-}
-
-beforeEach(() => {
-  localStorage.clear();
-});
-
-afterEach(() => {
-  localStorage.clear();
-});
-
-describe('Servicio centralizado de adopciones', () => {
-  test('permite consultar los perros disponibles', () => {
-    const perros = adopcionPresenter.listarPerros();
-
-    expect(perros.length).toBeGreaterThan(0);
-
-    expect(
-      adopcionPresenter.buscarPerroPorId('p1')
-    ).toBeDefined();
-  });
-
-  test('registra y consulta una solicitud', () => {
-    const solicitud = crearSolicitudValida();
-
-    const resultado =
-      adopcionPresenter.registrar(solicitud);
-
-    expect(resultado.ok).toBe(true);
-
-    expect(
-      adopcionPresenter.listarSolicitudes()
-    ).toEqual([solicitud]);
-  });
-
-  test('permite actualizar el estado de una solicitud', () => {
-    const solicitud = crearSolicitudValida();
-
-    adopcionPresenter.registrar(solicitud);
-
-    const aprobado = adopcionPresenter.cambiarEstado(
-      solicitud.id,
-      solicitud.albergueId,
-      'APROBADA'
-    );
-
-    expect(aprobado).toBe(true);
-
-    expect(
-      adopcionPresenter.listarSolicitudes()[0].estado
-    ).toBe('APROBADA');
-
-    const rechazado = adopcionPresenter.cambiarEstado(
-      solicitud.id,
-      solicitud.albergueId,
-      'RECHAZADA'
-    );
-
-    expect(rechazado).toBe(true);
-
-    expect(
-      adopcionPresenter.listarSolicitudes()[0].estado
-    ).toBe('RECHAZADA');
-  });
-
-  test('impide modificar solicitudes de otro albergue', () => {
-    const solicitud = crearSolicitudValida();
-
-    adopcionPresenter.registrar(solicitud);
-
-    const resultado = adopcionPresenter.cambiarEstado(
-      solicitud.id,
-      'otro-albergue',
-      'APROBADA'
-    );
-
-    expect(resultado).toBe(false);
-
-    expect(
-      adopcionPresenter.listarSolicitudes()[0].estado
-    ).toBe('PENDIENTE');
-  });
-
-  test('no guarda solicitudes inválidas', () => {
-    const solicitud = {
-      ...crearSolicitudValida(),
-      nombre: '',
-    };
-
-    const resultado =
-      adopcionPresenter.registrar(solicitud);
-
-    expect(resultado.ok).toBe(false);
-
-    expect(
-      adopcionPresenter.listarSolicitudes()
-    ).toEqual([]);
-  });
+import { AdopcionPresenter } from './AdopcionPresenter';
+import { SupabaseAdopcionRepository } from '../repositories/SupabaseAdopcionRepository';
+import { BaseDatosMemoria } from '../repositories/BaseDatosMemoria.testHelper';
+import type { PerroEnAdopcion, SolicitudAdopcion } from '../model/adopcionTypes';
+const perro: PerroEnAdopcion = { id: 'p1', albergueId: 'a1', nombre: 'Toby', tamano: 'MEDIANO', edad: '2 años', descripcion: 'Cariñoso', disponible: true, requisitos: 'Casa segura' };
+const solicitud: SolicitudAdopcion = { id: 's1', perroId: 'p1', albergueId: 'a1', adoptanteId: 'u1', nombre: 'Ana', telefono: '70000000', vivienda: 'Casa', motivo: 'Adoptar', estado: 'PENDIENTE' };
+async function preparar() { const db = new BaseDatosMemoria(); const repo = new SupabaseAdopcionRepository(db); await repo.guardarMascota(perro); return { db, repo, presenter: new AdopcionPresenter(repo) }; }
+describe('Adopciones con repositorio remoto', () => {
+    test('consulta mascotas', async () => { const { presenter } = await preparar(); expect(presenter.listarPerros()).toEqual([perro]); expect(presenter.buscarPerroPorId('p1')).toEqual(perro); });
+    test('registra y consulta una solicitud', async () => { const { presenter } = await preparar(); expect((await presenter.registrar(solicitud)).ok).toBe(true); expect(presenter.listarSolicitudes()).toEqual([solicitud]); });
+    test('actualiza el estado', async () => { const { presenter } = await preparar(); await presenter.registrar(solicitud); expect(await presenter.cambiarEstado('s1', 'a1', 'APROBADA')).toBe(true); expect(presenter.listarSolicitudes()[0].estado).toBe('APROBADA'); expect(await presenter.cambiarEstado('s1', 'a1', 'RECHAZADA')).toBe(true); expect(presenter.listarSolicitudes()[0].estado).toBe('RECHAZADA'); });
+    test('impide modificar solicitudes de otro albergue', async () => { const { presenter } = await preparar(); await presenter.registrar(solicitud); expect(await presenter.cambiarEstado('s1', 'a2', 'APROBADA')).toBe(false); expect(presenter.listarSolicitudes()[0].estado).toBe('PENDIENTE'); });
+    test('no guarda una solicitud inválida', async () => { const { presenter } = await preparar(); expect((await presenter.registrar({ ...solicitud, nombre: '' })).ok).toBe(false); expect(presenter.listarSolicitudes()).toEqual([]); });
+    test('propaga fallo de escritura', async () => { const { presenter, db } = await preparar(); db.fallar = true; await expect(presenter.registrar(solicitud)).rejects.toThrow(); });
 });

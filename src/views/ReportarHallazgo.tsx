@@ -1,17 +1,7 @@
-
 import FormularioNuevoReporte from './FormularioNuevoReporte';
-
-interface ReportarHallazgoProps {
-  usuarioId: string;
+interface Props {
+    usuarioId: string;
 }
-
-export default function ReportarHallazgo({
-  usuarioId,
-}: ReportarHallazgoProps) {
-  return (
-    <FormularioNuevoReporte
-      tipo="ENCONTRADO"
-      usuarioId={usuarioId}
-    />
-  );
+export default function ReportarHallazgo({ usuarioId }: Props) {
+    return <FormularioNuevoReporte tipo="ENCONTRADO" usuarioId={usuarioId}/>;
 }

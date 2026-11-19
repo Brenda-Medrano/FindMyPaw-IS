@@ -1,17 +1,7 @@
-
 import FormularioNuevoReporte from './FormularioNuevoReporte';
-
-interface ReportarPerdidaProps {
-  usuarioId: string;
+interface Props {
+    usuarioId: string;
 }
-
-export default function ReportarPerdida({
-  usuarioId,
-}: ReportarPerdidaProps) {
-  return (
-    <FormularioNuevoReporte
-      tipo="PERDIDO"
-      usuarioId={usuarioId}
-    />
-  );
+export default function ReportarPerdida({ usuarioId }: Props) {
+    return <FormularioNuevoReporte tipo="PERDIDO" usuarioId={usuarioId}/>;
 }
