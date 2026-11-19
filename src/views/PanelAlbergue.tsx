@@ -1,77 +1,60 @@
-import { useState } from 'react';
 
+import { useState } from 'react';
 import { adopcionPresenter } from '../presenters/services';
 
+const ALBERGUE_ID = 'demo';
+
 export default function PanelAlbergue() {
-  const [solicitudes, setSolicitudes] = useState(
-    () => adopcionPresenter.listarSolicitudes()
+  const [solicitudes, setSolicitudes] = useState(() =>
+    adopcionPresenter.listarSolicitudesPorAlbergue(ALBERGUE_ID)
   );
 
-  function cambiar(
+  const cambiar = (
     id: string,
     estado: 'APROBADA' | 'RECHAZADA'
-  ) {
+  ) => {
     adopcionPresenter.cambiarEstado(
       id,
-      'demo',
+      ALBERGUE_ID,
       estado
     );
 
     setSolicitudes(
-      adopcionPresenter.listarSolicitudes()
+      adopcionPresenter.listarSolicitudesPorAlbergue(ALBERGUE_ID)
     );
-  }
+  };
 
   return (
     <main>
       <h1>Solicitudes del albergue</h1>
 
-      {!solicitudes.length ? (
+      {solicitudes.length === 0 ? (
         <p>No existen solicitudes.</p>
       ) : (
         <div className="grid">
-          {solicitudes
-            .filter(solicitud =>
-              solicitud.albergueId === 'demo'
-            )
-            .map(solicitud => (
-              <article
-                className="card"
-                key={solicitud.id}
+          {solicitudes.map(solicitud => (
+            <article className="card" key={solicitud.id}>
+              <h3>{solicitud.nombre}</h3>
+
+              <p>{solicitud.estado}</p>
+
+              <p>Vivienda: {solicitud.vivienda}</p>
+
+              <button
+                onClick={() => cambiar(solicitud.id, 'APROBADA')}
               >
-                <h3>{solicitud.nombre}</h3>
+                Aprobar
+              </button>
 
-                <p>{solicitud.estado}</p>
+              {' '}
 
-                <p>
-                  Vivienda: {solicitud.vivienda}
-                </p>
-
-                <button
-                  onClick={() =>
-                    cambiar(
-                      solicitud.id,
-                      'APROBADA'
-                    )
-                  }
-                >
-                  Aprobar
-                </button>
-
-                {' '}
-
-                <button
-                  onClick={() =>
-                    cambiar(
-                      solicitud.id,
-                      'RECHAZADA'
-                    )
-                  }
-                >
-                  Rechazar
-                </button>
-              </article>
-            ))}
+              <button
+                onClick={() => cambiar(solicitud.id, 'RECHAZADA')}
+              >
+                Rechazar
+              </button>
+            </article>
+          ))}
         </div>
       )}
     </main>

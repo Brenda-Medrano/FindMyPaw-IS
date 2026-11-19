@@ -2,6 +2,7 @@
 import type {
   AdopcionRepository,
 } from '../repositories/interfaces';
+import { solicitudesDelAlbergue } from '../model/solicitudesAlbergue';
 
 import type {
   PerroEnAdopcion,
@@ -38,6 +39,14 @@ export class AdopcionPresenter {
 
   listarSolicitudes(): SolicitudAdopcion[] {
     return this.repo.solicitudes();
+  }
+  listarSolicitudesPorAlbergue(
+    albergueId: string
+  ): SolicitudAdopcion[] {
+    return solicitudesDelAlbergue(
+      this.listarSolicitudes(),
+      albergueId
+    );
   }
 
   cambiarEstado(
