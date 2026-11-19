@@ -1,4 +1,3 @@
-
 import type { ReporteRepository } from '../repositories/interfaces';
 import type { NuevoReporte, Reporte } from '../model/types';
 import type { Rol } from '../model/permisosAlbergue';
@@ -36,6 +35,19 @@ export class ReportePresenter {
     );
   }
 
+  private obtenerReporteEditable(
+    usuarioId: string,
+    id: string
+  ): Reporte | undefined {
+    const reporte = this.buscarPorId(id);
+
+    if (!reporte || !puedeEditarReporte(usuarioId, reporte)) {
+      return undefined;
+    }
+
+    return reporte;
+  }
+
   moderar(
     id: string,
     rol: Rol,
@@ -59,12 +71,9 @@ export class ReportePresenter {
   }
 
   resolver(usuarioId: string, id: string): boolean {
-    const anterior = this.buscarPorId(id);
+    const anterior = this.obtenerReporteEditable(usuarioId, id);
 
-    if (
-      !anterior ||
-      !puedeEditarReporte(usuarioId, anterior)
-    ) {
+    if (!anterior) {
       return false;
     }
 
@@ -79,12 +88,12 @@ export class ReportePresenter {
     usuarioId: string,
     actualizado: Reporte
   ): boolean {
-    const anterior = this.buscarPorId(actualizado.id);
+    const anterior = this.obtenerReporteEditable(
+      usuarioId,
+      actualizado.id
+    );
 
-    if (
-      !anterior ||
-      !puedeEditarReporte(usuarioId, anterior)
-    ) {
+    if (!anterior) {
       return false;
     }
 
