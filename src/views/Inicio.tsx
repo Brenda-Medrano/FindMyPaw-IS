@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, MapPin, PawPrint, Search, ShieldCheck, Sparkles } from 'lucide-react';
 import Reportes from './Reportes';
-import { reporteRepo } from '../presenters/services';
-import { listarPublicos } from '../model/listarReportes';
+import { reportePresenter } from '../presenters/services';
 
 export default function Inicio() {
-  const destacados = listarPublicos(reporteRepo.listar()).slice(0, 4);
+  const destacados = reportePresenter.listarPublicos().slice(0, 4);
   return (
     <main className="home-page">
       <section className="hero">
