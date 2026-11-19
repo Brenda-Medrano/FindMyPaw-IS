@@ -1,6 +1,7 @@
 import type { ReporteRepository } from '../repositories/interfaces';
 import type { NuevoReporte, Reporte } from '../model/types';
 import type { Rol } from '../model/permisosAlbergue';
+import { buscarReporte } from '../model/buscarReporte';
 
 import { validarReporte } from '../model/validarReporte';
 import { puedeEditarReporte } from '../model/permisosReporte';
@@ -24,9 +25,7 @@ export class ReportePresenter {
   }
 
   buscarPorId(id: string): Reporte | undefined {
-    return this.listarTodos().find(
-      reporte => reporte.id === id
-    );
+    return buscarReporte(this.listarTodos(), id);
   }
 
   listarPorAutor(autorId: string): Reporte[] {
