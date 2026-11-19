@@ -2,12 +2,29 @@ import type { AdopcionRepository } from '../repositories/interfaces';
 import type { SolicitudAdopcion } from '../model/adopcionTypes';
 import { validarSolicitud,crearSolicitud } from '../model/validarSolicitud';
 import { resolverSolicitud } from '../model/estadoSolicitud';
+import type { PerroEnAdopcion } from '../model/adopcionTypes';
+
 export class AdopcionPresenter {
     private repo: AdopcionRepository;
 
     constructor(repo: AdopcionRepository) {
     this.repo = repo;
     }
+
+    listarPerros(): PerroEnAdopcion[] {
+    return this.repo.perros();
+    }
+
+    buscarPerroPorId(id: string): PerroEnAdopcion | undefined {
+    return this.listarPerros().find(
+        perro => perro.id === id
+    );
+    }
+
+    listarSolicitudes(): SolicitudAdopcion[] {
+    return this.repo.solicitudes();
+    }
+
     cambiarEstado(id:string,albergueId:string,estado:'APROBADA'|'RECHAZADA'):boolean{
     const s=this.repo.solicitudes().find(x=>x.id===id);
     if(!s || s.albergueId!==albergueId)return false;

@@ -14,11 +14,9 @@ import Acceso from './views/Acceso';
 import MisReportes from './views/MisReportes';
 import DetalleReporte from './views/DetalleReporte';
 
-import { LocalAdopcionRepository } from './repositories/LocalAdopcionRepository';
-import { reportePresenter } from './presenters/services';
 
-// Repositorio de adopciones
-const adopcionesRepo = new LocalAdopcionRepository();
+import { reportePresenter, adopcionPresenter } from './presenters/services';
+
 
 // Componente para mostrar el detalle de un reporte
 const Detalle = () => {
@@ -36,19 +34,19 @@ const Detalle = () => {
 };
 
 // Componente para solicitar una adopción
+
 const PedirAdopcion = () => {
   const { id } = useParams();
 
-  const perro = adopcionesRepo
-    .perros()
-    .find((x) => x.id === id);
+  const perro = id
+    ? adopcionPresenter.buscarPerroPorId(id)
+    : undefined;
 
-  if (!perro) {
-    return <p>Perro no encontrado.</p>;
-  }
-
-  return <SolicitarAdopcion perro={perro} />;
+  return perro
+    ? <SolicitarAdopcion perro={perro} />
+    : <p>Perro no encontrado.</p>;
 };
+
 
 // Componente principal
 export default function App() {
@@ -65,10 +63,16 @@ export default function App() {
           <Route path="mascota/:id" element={<Detalle />} />
 
           {/* Adopciones */}
+          
           <Route
             path="adopciones"
-            element={<Adopciones perros={adopcionesRepo.perros()} />}
+            element={
+              <Adopciones
+                perros={adopcionPresenter.listarPerros()}
+              />
+            }
           />
+
 
           <Route
             path="adoptar/:id"
