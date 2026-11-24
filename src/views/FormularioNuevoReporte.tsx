@@ -32,7 +32,8 @@ export default function FormularioNuevoReporte({ tipo, usuarioId }: Props) {
         const datos: NuevoReporte = { autorId: usuarioId, tipo, nombre, especie, zona, descripcion, fecha, ...(perdida ? { foto } : {}) };
         try {
             const resultado = await reportePresenter.registrar(datos);
-            setMensaje(resultado.ok ? c.exito : Object.values(resultado.errores ?? {}).join('. '));
+            if (resultado.ok) setMensaje(c.exito);
+            else setError(Object.values(resultado.errores ?? {}).join('. '));
         }
         catch (e) {
             setError(e instanceof Error ? e.message : 'No se pudo guardar el reporte.');
