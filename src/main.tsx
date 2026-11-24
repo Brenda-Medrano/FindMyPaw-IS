@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { configurarConexion } from './data/conexion';
 import App from './App';
 import './styles.css';
+
 const root = createRoot(document.getElementById('root')!);
 const url = import.meta.env.VITE_SUPABASE_URL;
 const clave = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
