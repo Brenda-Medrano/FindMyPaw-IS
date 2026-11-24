@@ -7,6 +7,13 @@ import { marcarResuelto } from '../model/estadosReporte';
 import { listarPublicos } from '../model/listarReportes';
 import { moderarReporte } from '../model/moderacion';
 import { buscarReporte } from '../model/buscarReporte';
+import { reporteDuplicado } from '../model/validarDuplicados';
+
+import {
+  MENSAJES_DUPLICADOS,
+  RegistroDuplicadoError,
+} from '../model/RegistroDuplicadoError';
+
 export class ReportePresenter {
     private readonly repo: ReporteRepository;
     constructor(repo: ReporteRepository) { this.repo = repo; }
@@ -39,14 +46,50 @@ export class ReportePresenter {
         await this.repo.actualizar({ ...actualizado, autorId: anterior.autorId, moderacion: anterior.moderacion });
         return true;
     }
-    async registrar(datos: NuevoReporte): Promise<{
+    async registrar(
+        datos: NuevoReporte
+        ): Promise<{
         ok: boolean;
         errores?: Record<string, string>;
-    }> {
+        }> {
         const errores = validarReporte(datos);
-        if (Object.keys(errores).length)
+
+        if (Object.keys(errores).length) {
             return { ok: false, errores };
-        await this.repo.guardar({ ...datos, id: globalThis.crypto?.randomUUID?.() ?? String(Date.now()), estado: 'ACTIVO', moderacion: 'PENDIENTE' });
-        return { ok: true };
-    }
+        }
+
+        if (reporteDuplicado(datos, this.listarTodos())) {
+            return {
+            ok: false,
+            errores: {
+                duplicado: MENSAJES_DUPLICADOS.reporte,
+            },
+            };
+        }
+
+        try {
+            await this.repo.guardar({
+            ...datos,
+            id:
+                globalThis.crypto?.randomUUID?.() ??
+                String(Date.now()),
+            estado: 'ACTIVO',
+            moderacion: 'PENDIENTE',
+            });
+
+            return { ok: true };
+
+        } catch (error) {
+            if (error instanceof RegistroDuplicadoError) {
+            return {
+                ok: false,
+                errores: {
+                duplicado: error.message,
+                },
+            };
+            }
+
+            throw error;
+        }
+        }
 }
