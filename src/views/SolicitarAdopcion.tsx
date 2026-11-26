@@ -21,7 +21,8 @@ export default function SolicitarAdopcion({ perro, usuarioId }: Props) {
         const solicitud: SolicitudAdopcion = { id: globalThis.crypto?.randomUUID?.() ?? String(Date.now()), perroId: perro.id, albergueId: perro.albergueId, adoptanteId: usuarioId, nombre, telefono, vivienda, motivo: 'Deseo adoptar', estado: 'PENDIENTE' };
         try {
             const resultado = await adopcionPresenter.registrar(solicitud);
-            setMensaje(resultado.mensaje);
+            if (resultado.ok) setMensaje(resultado.mensaje);
+            else setError(resultado.mensaje);
         }
         catch (e) {
             setError(e instanceof Error ? e.message : 'No se pudo guardar la solicitud.');

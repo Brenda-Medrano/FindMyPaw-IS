@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Sesion } from '../model/autenticacion';
 import type { Rol } from '../model/permisosAlbergue';
 import { sesionPresenter } from '../presenters/services';
+import FormularioRegistro from './FormularioRegistro';
 interface Props {
     sesion: Sesion | null;
     onSesion: (sesion: Sesion) => Promise<void>;
@@ -14,6 +15,7 @@ export default function Acceso({ sesion, onSesion }: Props) {
     const [clave, setClave] = useState('');
     const [error, setError] = useState('');
     const [cargando, setCargando] = useState(false);
+    const [mostrarRegistro, setMostrarRegistro] = useState(false);
     const navigate = useNavigate();
     async function iniciar(evento: FormEvent<HTMLFormElement>) {
         evento.preventDefault();
@@ -34,11 +36,13 @@ export default function Acceso({ sesion, onSesion }: Props) {
     }
     if (sesion)
         return <main className="card"><h1>Sesión activa</h1><p>Rol: {sesion.rol}</p><button onClick={() => navigate(DESTINOS[sesion.rol])}>Ir a mi panel</button></main>;
+    if (mostrarRegistro) return <FormularioRegistro onVolver={() => setMostrarRegistro(false)} />;
     return <main className="card"><h1>Iniciar sesión</h1><p>Accede a tu cuenta de FindMyPaw.</p>
     <form onSubmit={iniciar} noValidate>
       <label htmlFor="correo">Correo electrónico</label><input id="correo" type="email" autoComplete="username" required value={correo} onChange={e => setCorreo(e.target.value)}/>
       <label htmlFor="clave">Contraseña</label><input id="clave" type="password" autoComplete="current-password" required value={clave} onChange={e => setClave(e.target.value)}/>
       {error && <p role="alert">{error}</p>}
       <button type="submit" disabled={cargando}>{cargando ? 'Conectando...' : 'Iniciar sesión'}</button>
-    </form></main>;
+    </form><p>¿Todavía no tienes una cuenta?</p>
+    <button type="button" onClick={() => setMostrarRegistro(true)}>Crear cuenta</button></main>;
 }

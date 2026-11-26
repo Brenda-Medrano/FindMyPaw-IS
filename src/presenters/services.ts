@@ -7,6 +7,9 @@ import { AdopcionPresenter } from './AdopcionPresenter';
 import { SesionPresenter } from './SesionPresenter';
 import { MascotaPresenter } from './MascotaPresenter';
 import type { Sesion } from '../model/autenticacion';
+import { RegistroPresenter } from './RegistroPresenter';
+
+import { registrarCuentaSupabase } from '../data/RegistroSupabase';
 const db = new BaseDatosSupabase();
 const reporteRepo = new SupabaseReporteRepository(db);
 const adopcionRepo = new SupabaseAdopcionRepository(db);
@@ -14,6 +17,9 @@ export const reportePresenter = new ReportePresenter(reporteRepo);
 export const adopcionPresenter = new AdopcionPresenter(adopcionRepo);
 export const mascotaPresenter = new MascotaPresenter(adopcionRepo);
 export const sesionPresenter = new SesionPresenter(new SupabaseAutenticacion());
+export const registroPresenter = new RegistroPresenter(
+  registrarCuentaSupabase
+);
 export function limpiarDatos(): void {
     reporteRepo.limpiar();
     adopcionRepo.limpiar();

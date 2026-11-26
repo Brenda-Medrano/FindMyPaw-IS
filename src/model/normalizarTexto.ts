@@ -1,3 +1,10 @@
-export function normalizarTexto(valor:string):string {
-  return valor.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+export function normalizarCorreo(correo: string): string {
+  return correo.trim().toLowerCase();
+}
+
+export function normalizarTexto(valor?: string | null): string {
+  return (valor ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
 }

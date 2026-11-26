@@ -1,6 +1,7 @@
 
 import type { BaseDatos, Tabla } from './BaseDatos';
 import { obtenerConexion } from './conexion';
+import { comprobarErrorDuplicado } from './comprobarErrorDuplicado';
 
 export class BaseDatosSupabase implements BaseDatos {
 
@@ -43,6 +44,7 @@ export class BaseDatosSupabase implements BaseDatos {
       .select()
       .single();
 
+    if (error) comprobarErrorDuplicado(error, tabla);
     if (error || !data) {
       throw new Error(
         'No se pudo guardar el registro. Revisa la conexión o los permisos.'
@@ -68,6 +70,7 @@ export class BaseDatosSupabase implements BaseDatos {
       .select()
       .single();
 
+    if (error) comprobarErrorDuplicado(error, tabla);
     if (error || !data) {
       throw new Error(
         'No se pudo actualizar el registro. Revisa la conexión o los permisos.'

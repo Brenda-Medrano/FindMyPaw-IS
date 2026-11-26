@@ -3,6 +3,12 @@ import type { PerroEnAdopcion, SolicitudAdopcion } from '../model/adopcionTypes'
 import { solicitudesDelAlbergue } from '../model/solicitudesAlbergue';
 import { validarSolicitud, crearSolicitud } from '../model/validarSolicitud';
 import { resolverSolicitud } from '../model/estadoSolicitud';
+import { solicitudDuplicada } from '../model/validarDuplicados';
+
+import {
+  MENSAJES_DUPLICADOS,
+  RegistroDuplicadoError,
+} from '../model/RegistroDuplicadoError';
 export class AdopcionPresenter {
     private readonly repo: AdopcionRepository;
     constructor(repo: AdopcionRepository) { this.repo = repo; }
@@ -17,14 +23,52 @@ export class AdopcionPresenter {
         await this.repo.actualizarSolicitud(resolverSolicitud(solicitud, albergueId, estado));
         return true;
     }
-    async registrar(solicitud: SolicitudAdopcion): Promise<{
+   async registrar(
+        solicitud: SolicitudAdopcion
+        ): Promise<{
         ok: boolean;
         mensaje: string;
-    }> {
+        }> {
         const errores = validarSolicitud(solicitud);
-        if (errores.length)
-            return { ok: false, mensaje: errores.join(', ') };
-        await this.repo.guardarSolicitud(crearSolicitud(solicitud));
-        return { ok: true, mensaje: 'Solicitud enviada, estado Pendiente' };
+
+        if (errores.length) {
+            return {
+            ok: false,
+            mensaje: errores.join(', '),
+            };
+        }
+
+        if (
+            solicitudDuplicada(
+            solicitud,
+            this.listarSolicitudes()
+            )
+        ) {
+            return {
+            ok: false,
+            mensaje: MENSAJES_DUPLICADOS.solicitud,
+            };
+        }
+
+        try {
+            await this.repo.guardarSolicitud(
+            crearSolicitud(solicitud)
+            );
+
+            return {
+            ok: true,
+            mensaje: 'Solicitud enviada, estado Pendiente',
+            };
+
+        } catch (error) {
+            if (error instanceof RegistroDuplicadoError) {
+            return {
+                ok: false,
+                mensaje: error.message,
+            };
+            }
+
+            throw error;
+        }
     }
 }

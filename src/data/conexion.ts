@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+
 let conexion: SupabaseClient | undefined;
 export function configurarConexion(cliente: SupabaseClient): void {
     conexion = cliente;
